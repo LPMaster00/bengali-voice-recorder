@@ -9,11 +9,11 @@
   :root {
     --bg:#f7f7f8; --panel:#fff; --text:#1a1a1a; --muted:#6b7280; --border:#e2e2e6;
     --accent:#2563eb; --accent-fg:#fff; --danger:#dc2626; --ok:#16a34a; --dim-bg:#f0f0f2;
-    --warn-bg:#fef3c7; --warn-fg:#92400e;
+    --warn-bg:#fef3c7; --warn-fg:#92400e; --link:#1d4ed8;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg:#111318; --panel:#1b1e26; --text:#e8e8ec; --muted:#9aa0ab; --border:#2a2e38; --dim-bg:#20232c;
-            --warn-bg:#3a2e12; --warn-fg:#fcd34d; }
+            --warn-bg:#3a2e12; --warn-fg:#fcd34d; --link:#93c5fd; }
   }
   * { box-sizing: border-box; }
   body { margin:0; font-family: -apple-system, "Segoe UI", "Noto Sans Bengali", "Kalpurush", sans-serif; background:var(--bg); color:var(--text); }
@@ -59,6 +59,7 @@
   .nav button { flex:1; font-size:14px; padding:10px; }
   details { margin-top:24px; font-size:13px; color:var(--muted); }
   details summary { cursor:pointer; }
+  a { color: var(--link); }
   code { background:var(--dim-bg); padding:1px 6px; border-radius:4px; font-size:13px; }
 </style>
 </head>
@@ -176,7 +177,7 @@
       <h1>Optional final section</h1>
       <p>The next <span class="distressCount"></span> sentences describe very difficult feelings, including thoughts of <b>suicide</b>, <b>self-harm</b>, trauma and shame. Recording them helps the tool learn to recognise when someone may need urgent support.</p>
       <p>You are reading a script; these sentences are <b>not about you</b>. This section is completely optional, and finishing here is fine. If you continue, you can still skip any sentence.</p>
-      <p>If reading them brings up difficult feelings, please stop and talk to someone you trust, or contact <a href="mailto:magsih@wwu.edu">magsih@wwu.edu</a></p>
+      <p>If reading them brings up difficult feelings, please stop and talk to someone you trust, or contact <a href="mailto:magsih@wwu.edu">magsih@wwu.edu</a>.</p>
       <div class="row" style="flex-direction:column">
         <button id="gateContinueBtn" class="wide">Continue to these sentences</button>
         <button id="gateFinishBtn" class="wide">Finish here</button>
