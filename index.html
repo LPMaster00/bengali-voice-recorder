@@ -43,6 +43,7 @@
   .badge.done { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
   .bn-text { font-size: 28px; line-height:1.55; margin: 8px 0 10px; }
   .gloss { font-size:14px; color: var(--muted); }
+  .gloss-label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
   .sensitive-note { background:var(--warn-bg); color:var(--warn-fg); font-size:13px; padding:8px 10px; border-radius:8px; margin-top:12px; }
   .rec-row { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:18px; }
   .steps li { margin-bottom:8px; }
@@ -107,7 +108,7 @@
     <h1>How it works</h1>
     <div class="card">
       <ol class="steps">
-        <li><b>Read the sentence</b> shown in large Bengali text. The English line under it is only a translation.</li>
+        <li><b>Read the sentence</b> shown in large Bengali text. The English line under it is only a translation so you know what it means. <b>Please speak only in Bengali; do not read the English aloud.</b></li>
         <li><b>Press ● Record</b>, say the sentence in your natural voice, then press <b>■ Stop</b>.</li>
         <li><b>Listen back.</b> If it sounds clear, press <b>Submit</b>. If not, press <b>Re-record</b>.</li>
         <li>Not comfortable with a sentence? Press <b>Skip</b>. Sentences marked <span class="badge sensitive">sensitive topic</span> are always fine to skip.</li>
@@ -119,7 +120,7 @@
       <h2 style="margin-top:0">Practice first</h2>
       <p class="muted">This is only a test of your microphone; it is not sent anywhere. Your browser will ask for permission to use the microphone; please allow it.</p>
       <div class="bn-text">আজকে আবহাওয়াটা বেশ ভালো।</div>
-      <div class="gloss">The weather is quite nice today.</div>
+      <div class="gloss"><span class="gloss-label">English meaning (do not read aloud)</span>The weather is quite nice today.</div>
       <div class="rec-row">
         <button id="practiceRecordBtn" class="primary rec-btn">● Record</button>
         <span class="timer" id="practiceTimer">00:00</span>
@@ -141,7 +142,7 @@
     <div class="card">
       <div class="badges" id="badges"></div>
       <div class="bn-text" id="bnText"></div>
-      <div class="gloss" id="gloss"></div>
+      <div class="gloss"><span class="gloss-label">English meaning (do not read aloud)</span><span id="gloss"></span></div>
       <div class="sensitive-note hidden" id="sensitiveNote">This sentence mentions a sensitive topic. Skip it if you prefer — that is completely fine.</div>
 
       <div class="rec-row">
@@ -171,7 +172,7 @@
     <div class="card">
       <h1>Thank you!</h1>
       <p>You have gone through every sentence. <span id="doneSummary"></span></p>
-      <p>You can close this page. If you skipped some sentences and want to record them, use the button below.</p>
+      <p>You can close this page.<span id="skippedHint"> If you skipped some sentences and want to record them, use the button below.</span></p>
       <button id="reviewSkippedBtn" class="wide">Record skipped sentences</button>
     </div>
   </section>
@@ -392,7 +393,8 @@ async function submit() {
 }
 
 function setBusy(b) {
-  for (const id of ['submitBtn', 'redoBtn', 'recordBtn', 'prevBtn', 'skipBtn']) $(id).disabled = b;
+  for (const id of ['submitBtn', 'redoBtn', 'recordBtn', 'prevBtn', 'skipBtn', 'showTutorialBtn']) $(id).disabled = b;
+  if (!b) $('prevBtn').disabled = index === 0;
 }
 function setStatus(text, cls) {
   $(ui.status).textContent = text;
@@ -460,10 +462,12 @@ function enterRecording() {
 }
 
 function finish() {
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
   const done = Object.keys(takes).length;
   const nSkipped = Object.keys(skipped).length;
   $('doneSummary').textContent = `You submitted ${done} recording${done === 1 ? '' : 's'}` + (nSkipped ? ` and skipped ${nSkipped}.` : '.');
   $('reviewSkippedBtn').classList.toggle('hidden', nSkipped === 0);
+  $('skippedHint').classList.toggle('hidden', nSkipped === 0);
   show('doneScreen');
 }
 
