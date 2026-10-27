@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Bengali Voice Recording</title>
+<style>
+  :root {
+    --bg:#f7f7f8; --panel:#fff; --text:#1a1a1a; --muted:#6b7280; --border:#e2e2e6;
+    --accent:#2563eb; --accent-fg:#fff; --danger:#dc2626; --ok:#16a34a; --dim-bg:#f0f0f2;
+    --warn-bg:#fef3c7; --warn-fg:#92400e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111318; --panel:#1b1e26; --text:#e8e8ec; --muted:#9aa0ab; --border:#2a2e38; --dim-bg:#20232c;
+            --warn-bg:#3a2e12; --warn-fg:#fcd34d; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", "Noto Sans Bengali", "Kalpurush", sans-serif; background:var(--bg); color:var(--text); }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 60px; }
+  h1 { font-size: 22px; margin: 12px 0 6px; }
+  h2 { font-size: 17px; margin: 18px 0 6px; }
+  p, li { font-size: 15px; line-height: 1.55; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px; margin:12px 0; }
+  .hidden { display:none !important; }
+  label.check { display:flex; gap:10px; align-items:flex-start; font-size:15px; margin:14px 0; }
+  label.check input { width:20px; height:20px; margin-top:2px; flex:none; }
+  .field label { display:block; font-size:13px; color:var(--muted); margin-bottom:4px; }
+  .field input { width:100%; font-size:16px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); }
+  button { font-size:16px; padding:12px 18px; border-radius:10px; border:1px solid var(--border); background:var(--panel); color:var(--text); cursor:pointer; font-family:inherit; }
+  button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  button.danger { background: var(--danger); color:#fff; border-color:var(--danger); }
+  button.wide { width:100%; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  .error { color: var(--danger); font-size:14px; margin-top:8px; min-height:1em; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
+  .progress-track { height:6px; background:var(--dim-bg); border-radius:999px; overflow:hidden; margin:8px 0 4px; }
+  .progress-fill { height:100%; background:var(--ok); width:0; transition:width .3s; }
+  .badges { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .badge { font-size:12px; padding:3px 9px; border-radius:999px; background:var(--dim-bg); color:var(--muted); border:1px solid var(--border); }
+  .badge.sensitive { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+  .badge.done { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
+  .bn-text { font-size: 28px; line-height:1.55; margin: 8px 0 10px; }
+  .gloss { font-size:14px; color: var(--muted); }
+  .sensitive-note { background:var(--warn-bg); color:var(--warn-fg); font-size:13px; padding:8px 10px; border-radius:8px; margin-top:12px; }
+  .rec-row { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:18px; }
+  .steps li { margin-bottom:8px; }
+  .rec-btn { width:96px; height:96px; border-radius:50%; font-size:15px; padding:0; }
+  .timer { font-variant-numeric: tabular-nums; font-size:15px; color:var(--muted); }
+  audio { width:100%; margin-top:12px; }
+  .row { display:flex; gap:10px; margin-top:12px; }
+  .row > button { flex:1; }
+  .status { font-size:14px; margin-top:10px; text-align:center; min-height:1.2em; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--danger); }
+  .nav { display:flex; justify-content:space-between; gap:10px; margin-top:14px; }
+  .nav button { flex:1; font-size:14px; padding:10px; }
+  details { margin-top:24px; font-size:13px; color:var(--muted); }
+  details summary { cursor:pointer; }
+  code { background:var(--dim-bg); padding:1px 6px; border-radius:4px; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Screen 1: information + consent -->
+  <section id="introScreen" class="hidden">
+    <h1>Bengali Voice Recording</h1>
+    <p class="muted">Research project: offline symptom recognition for people with limited access to healthcare.</p>
+    <div class="card">
+      <h2>What you will do</h2>
+      <p>You will see short Bengali sentences describing health symptoms, one at a time. Read each one aloud in your natural voice, listen back, and press <b>Submit</b>. There are 113 sentences; each takes a few seconds. You can stop any time and come back later on the same device.</p>
+      <h2>What we collect</h2>
+      <ul>
+        <li>Your voice recordings of these sentences.</li>
+        <li>The name you enter below. It is used only to organise recordings and is kept private by the research team.</li>
+        <li>Basic technical information (browser type, recording length).</li>
+      </ul>
+      <h2>How it is used</h2>
+      <p>Recordings are stored privately in the research team's Google Drive and used only to test and improve speech recognition for this project. They will not be published.</p>
+      <h2>Your choices</h2>
+      <ul>
+        <li>Taking part is voluntary. You can skip any sentence, especially those marked <span class="badge sensitive">sensitive topic</span>.</li>
+        <li>You can stop at any time and delete everything you submitted using the <b>Withdraw</b> option at the bottom of the page.</li>
+        <li>The sentences describe symptoms but are <b>not about you</b>; you are reading a script.</li>
+      </ul>
+      <p class="muted">Questions: contact the person who sent you this link.</p>
+    </div>
+    <div class="card">
+      <label class="check"><input type="checkbox" id="consentBox"> <span>I am 18 or older, I have read the information above, and I agree to take part.</span></label>
+      <div class="field">
+        <label for="nameInput">Your name</label>
+        <input id="nameInput" autocomplete="name">
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label for="codeInput">Access code (from the research team)</label>
+        <input id="codeInput" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="error" id="introError"></div>
+      <button id="startBtn" class="primary wide" disabled>Continue</button>
+    </div>
+  </section>
+
+  <!-- Screen 2: tutorial + practice take (never uploaded) -->
+  <section id="tutorialScreen" class="hidden">
+    <h1>How it works</h1>
+    <div class="card">
+      <ol class="steps">
+        <li><b>Read the sentence</b> shown in large Bengali text. The English line under it is only a translation.</li>
+        <li><b>Press ● Record</b>, say the sentence in your natural voice, then press <b>■ Stop</b>.</li>
+        <li><b>Listen back.</b> If it sounds clear, press <b>Submit</b>. If not, press <b>Re-record</b>.</li>
+        <li>Not comfortable with a sentence? Press <b>Skip</b>. Sentences marked <span class="badge sensitive">sensitive topic</span> are always fine to skip.</li>
+        <li>Your progress is saved on this device. You can close the page and come back later to continue.</li>
+      </ol>
+      <p class="muted">For best results: a quiet room, phone about a hand's width from your mouth, normal speaking speed. Small changes in wording are fine; say it the way you naturally would.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">Practice first</h2>
+      <p class="muted">This is only a test of your microphone; it is not sent anywhere. Your browser will ask for permission to use the microphone; please allow it.</p>
+      <div class="bn-text">আজকে আবহাওয়াটা বেশ ভালো।</div>
+      <div class="gloss">The weather is quite nice today.</div>
+      <div class="rec-row">
+        <button id="practiceRecordBtn" class="primary rec-btn">● Record</button>
+        <span class="timer" id="practiceTimer">00:00</span>
+      </div>
+      <div id="practiceReview" class="hidden">
+        <audio id="practicePlayer" controls></audio>
+        <p class="muted">Can you hear yourself clearly? If it is too quiet or noisy, move somewhere quieter or closer to the phone and try again.</p>
+      </div>
+      <div class="status" id="practiceStatus"></div>
+    </div>
+    <button id="beginBtn" class="primary wide">I'm ready — begin recording</button>
+  </section>
+
+  <!-- Screen 2: recording -->
+  <section id="recordScreen" class="hidden">
+    <div class="topbar"><span id="lineLabel"></span><span id="countLabel"></span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="card">
+      <div class="badges" id="badges"></div>
+      <div class="bn-text" id="bnText"></div>
+      <div class="gloss" id="gloss"></div>
+      <div class="sensitive-note hidden" id="sensitiveNote">This sentence mentions a sensitive topic. Skip it if you prefer — that is completely fine.</div>
+
+      <div class="rec-row">
+        <button id="recordBtn" class="primary rec-btn">● Record</button>
+        <span class="timer" id="timer">00:00</span>
+      </div>
+
+      <div id="reviewArea" class="hidden">
+        <audio id="player" controls></audio>
+        <div class="row">
+          <button id="redoBtn">Re-record</button>
+          <button id="submitBtn" class="primary">Submit</button>
+        </div>
+      </div>
+      <div class="status" id="status"></div>
+
+      <div class="nav">
+        <button id="prevBtn">← Back</button>
+        <button id="skipBtn">Skip →</button>
+      </div>
+    </div>
+    <button id="showTutorialBtn" class="wide">How it works / test microphone</button>
+  </section>
+
+  <!-- Screen 3: finished -->
+  <section id="doneScreen" class="hidden">
+    <div class="card">
+      <h1>Thank you!</h1>
+      <p>You have gone through every sentence. <span id="doneSummary"></span></p>
+      <p>You can close this page. If you skipped some sentences and want to record them, use the button below.</p>
+      <button id="reviewSkippedBtn" class="wide">Record skipped sentences</button>
+    </div>
+  </section>
+
+  <details id="myDataPanel" class="hidden">
+    <summary>My data &amp; withdrawal</summary>
+    <p>Your recording ID: <code id="speakerLabel"></code>. Quote this ID if you contact the research team about your recordings.</p>
+    <button id="withdrawBtn" class="danger">Withdraw and delete my recordings</button>
+    <div class="error" id="withdrawError"></div>
+  </details>
+</div>
+
+<script>
+const SCRIPT_DATA = [{"script_id": "R001", "symptom_ids": ["S001"], "bengali_text": "আমার জ্বর হয়েছে।", "english_gloss": "I have a fever.", "sensitive": false}, {"script_id": "R002", "symptom_ids": ["S001"], "bengali_text": "গা টা কেমন গরম গরম লাগছে, মনে হয় জ্বর আসছে।", "english_gloss": "My body feels warm, I think a fever is coming.", "sensitive": false}, {"script_id": "R003", "symptom_ids": ["S002"], "bengali_text": "আমার খুব শীত শীত লাগছে আর কাঁপুনি হচ্ছে।", "english_gloss": "I feel very cold and am shivering.", "sensitive": false}, {"script_id": "R004", "symptom_ids": ["S002"], "bengali_text": "গরমকালেও আমার গা কাঁপে, ঠান্ডা লাগে।", "english_gloss": "Even in summer my body shivers, I feel cold.", "sensitive": false}, {"script_id": "R005", "symptom_ids": ["S003"], "bengali_text": "আমার শরীরে একদম শক্তি নেই, খুব দুর্বল লাগে।", "english_gloss": "I have no strength in my body, I feel very weak.", "sensitive": false}, {"script_id": "R006", "symptom_ids": ["S003"], "bengali_text": "সারাদিন কেমন ঝিমায় থাকি, কোন কাজ করতে ইচ্ছা করে না।", "english_gloss": "I feel drowsy all day, I don't feel like doing anything.", "sensitive": false}, {"script_id": "R007", "symptom_ids": ["S004"], "bengali_text": "রাতে ঘুমানোর সময় খুব ঘাম হয়, কাপড় ভিজে যায়।", "english_gloss": "At night while sleeping I sweat a lot, my clothes get wet.", "sensitive": false}, {"script_id": "R008", "symptom_ids": ["S004"], "bengali_text": "রাইতে ঘুমের মধ্যে এমন ঘামি যে বিছানা ভিজে যায়।", "english_gloss": "I sweat so much in my sleep that the bed gets wet.", "sensitive": false}, {"script_id": "R009", "symptom_ids": ["S005"], "bengali_text": "গত কয়েক মাসে আমার ওজন অনেক কমে গেছে।", "english_gloss": "In the last few months I've lost a lot of weight.", "sensitive": false}, {"script_id": "R010", "symptom_ids": ["S005"], "bengali_text": "আমি দিন দিন শুকিয়ে যাচ্ছি, শরীরে মাংস নাই।", "english_gloss": "I'm getting thinner day by day, there's no flesh on my body.", "sensitive": false}, {"script_id": "R011", "symptom_ids": ["S006"], "bengali_text": "হঠাৎ দাঁড়ালে আমার মাথা ঘোরে।", "english_gloss": "When I stand up suddenly, my head spins.", "sensitive": false}, {"script_id": "R012", "symptom_ids": ["S006"], "bengali_text": "মাথাটা কেমন যেন ঘুরায়, চোখে অন্ধকার দেখি মাঝে মাঝে।", "english_gloss": "My head spins strangely, sometimes I see darkness in my eyes.", "sensitive": false}, {"script_id": "R013", "symptom_ids": ["S007"], "bengali_text": "আমার মাথা খুব ব্যথা করছে।", "english_gloss": "My head hurts a lot.", "sensitive": false}, {"script_id": "R014", "symptom_ids": ["S007"], "bengali_text": "মাথাটা ধরে আছে সেই সকাল থেকে।", "english_gloss": "My head has been aching since morning.", "sensitive": false}, {"script_id": "R015", "symptom_ids": ["S008"], "bengali_text": "আমার কিছু খেতে ইচ্ছা করে না, রুচি নেই।", "english_gloss": "I don't feel like eating anything, I have no appetite.", "sensitive": false}, {"script_id": "R016", "symptom_ids": ["S008"], "bengali_text": "খাওয়ার নাম শুনলেই গা গুলায়, একদম রুচি নাই।", "english_gloss": "Just hearing about food makes me feel sick, no appetite at all.", "sensitive": false}, {"script_id": "R017", "symptom_ids": ["S009"], "bengali_text": "অনেকদিন ধরে আমার পিঠে ব্যথা।", "english_gloss": "I've had back pain for a long time.", "sensitive": false}, {"script_id": "R018", "symptom_ids": ["S009"], "bengali_text": "কোমরটা এমন ব্যথা করে যে সোজা হয়ে দাঁড়াইতে পারি না।", "english_gloss": "My lower back hurts so much I can't stand up straight.", "sensitive": false}, {"script_id": "R019", "symptom_ids": ["S010"], "bengali_text": "আমার পেটে অনেক ব্যথা করছে।", "english_gloss": "My stomach hurts a lot.", "sensitive": false}, {"script_id": "R020", "symptom_ids": ["S010"], "bengali_text": "পেটটা মোচড় দিয়া ব্যথা করতেছে।", "english_gloss": "My stomach is twisting and hurting.", "sensitive": false}, {"script_id": "R021", "symptom_ids": ["S011"], "bengali_text": "আমার তলপেটে ব্যথা হয়, বিশেষ করে মাসিকের সময়।", "english_gloss": "I have lower abdominal pain, especially during my period.", "sensitive": false}, {"script_id": "R022", "symptom_ids": ["S011"], "bengali_text": "নিচের দিকটায় কেমন একটা টাটানি ব্যথা থাকে, কয়েকদিন ধরে।", "english_gloss": "There's a kind of throbbing pain down below, for a few days.", "sensitive": false}, {"script_id": "R023", "symptom_ids": ["S012"], "bengali_text": "আমার হাড়ে হাড়ে ব্যথা করে।", "english_gloss": "My joints/bones ache.", "sensitive": false}, {"script_id": "R024", "symptom_ids": ["S012"], "bengali_text": "গিঁটে গিঁটে ব্যথা, নড়াচড়া করতে কষ্ট হয়।", "english_gloss": "My joints ache, it's hard to move.", "sensitive": false}, {"script_id": "R025", "symptom_ids": ["S013"], "bengali_text": "আমার হাঁটুতে ব্যথা, ঠিকমতো হাঁটতে পারছি না।", "english_gloss": "My knee hurts, I can't walk properly.", "sensitive": false}, {"script_id": "R026", "symptom_ids": ["S013"], "bengali_text": "হাঁটু দুইটা ব্যথায় ফাইট্টা যায়, সিঁড়ি দিয়া উঠতে পারি না।", "english_gloss": "Both my knees hurt like they're splitting, I can't climb stairs.", "sensitive": false}, {"script_id": "R027", "symptom_ids": ["S014"], "bengali_text": "আমার বুকে ব্যথা করছে।", "english_gloss": "My chest hurts.", "sensitive": false}, {"script_id": "R028", "symptom_ids": ["S014"], "bengali_text": "বুকের মধ্যে একটা চাপ ধরা ব্যথা, শ্বাস নিতে কষ্ট হয়।", "english_gloss": "There's a pressing pain in my chest, it's hard to breathe.", "sensitive": false}, {"script_id": "R029", "symptom_ids": ["S015"], "bengali_text": "আমার অনেকদিন ধরে কাশি হচ্ছে।", "english_gloss": "I've had a cough for a long time.", "sensitive": false}, {"script_id": "R030", "symptom_ids": ["S015"], "bengali_text": "কাশতে কাশতে বুক ব্যথা হয়ে যায়।", "english_gloss": "I cough so much my chest starts to hurt.", "sensitive": false}, {"script_id": "R031", "symptom_ids": ["S016"], "bengali_text": "আমার অনেক গলা ব্যথা করে।", "english_gloss": "My throat hurts a lot.", "sensitive": false}, {"script_id": "R032", "symptom_ids": ["S016"], "bengali_text": "গলায় কি একটা আটকায় আছে মনে হয়, ঢোক গিলতে ব্যথা লাগে।", "english_gloss": "It feels like something is stuck in my throat, swallowing hurts.", "sensitive": false}, {"script_id": "R033", "symptom_ids": ["S017"], "bengali_text": "আমার শ্বাসকষ্ট হচ্ছে।", "english_gloss": "I'm having shortness of breath.", "sensitive": false}, {"script_id": "R034", "symptom_ids": ["S017"], "bengali_text": "একটু হাঁটলেই দম আটকায় আসে।", "english_gloss": "Even a little walking makes me out of breath.", "sensitive": false}, {"script_id": "R035", "symptom_ids": ["S018"], "bengali_text": "আমার নাক বন্ধ, সর্দি হয়েছে।", "english_gloss": "My nose is blocked, I have a cold.", "sensitive": false}, {"script_id": "R036", "symptom_ids": ["S018"], "bengali_text": "নাক দিয়া পানি পড়তেছে আর নাকটা বন্ধ হইয়া আছে।", "english_gloss": "Water is running from my nose and it's blocked.", "sensitive": false}, {"script_id": "R037", "symptom_ids": ["S019"], "bengali_text": "আমার বমি বমি ভাব হচ্ছে।", "english_gloss": "I feel nauseous.", "sensitive": false}, {"script_id": "R038", "symptom_ids": ["S019"], "bengali_text": "গা টা কেমন গুলাইতেছে, বমি বমি লাগে।", "english_gloss": "My stomach feels off, I feel like vomiting.", "sensitive": false}, {"script_id": "R039", "symptom_ids": ["S020"], "bengali_text": "আমি কয়েকবার বমি করেছি।", "english_gloss": "I've vomited a few times.", "sensitive": false}, {"script_id": "R040", "symptom_ids": ["S020"], "bengali_text": "যা খাই সব বমি হয়ে যায়।", "english_gloss": "Whatever I eat, I throw it all up.", "sensitive": false}, {"script_id": "R041", "symptom_ids": ["S021"], "bengali_text": "আমার পাতলা পায়খানা হচ্ছে।", "english_gloss": "I have diarrhea.", "sensitive": false}, {"script_id": "R042", "symptom_ids": ["S021"], "bengali_text": "পেট চলতেছে, বার বার টয়লেটে যাইতে হইতেছে।", "english_gloss": "My stomach is running, I have to go to the toilet repeatedly.", "sensitive": false}, {"script_id": "R043", "symptom_ids": ["S022"], "bengali_text": "আমার কয়েকদিন ধরে পায়খানা হচ্ছে না।", "english_gloss": "I haven't had a bowel movement for a few days.", "sensitive": false}, {"script_id": "R044", "symptom_ids": ["S022"], "bengali_text": "পেট পরিষ্কার হয় না, কোষ্ঠকাঠিন্য হইছে।", "english_gloss": "My stomach doesn't clear, I have constipation.", "sensitive": false}, {"script_id": "R045", "symptom_ids": ["S023"], "bengali_text": "আমার পেট খারাপ হয়ে আছে।", "english_gloss": "My stomach is upset.", "sensitive": false}, {"script_id": "R046", "symptom_ids": ["S023"], "bengali_text": "পেটটা কেমন গোলমাল করতেছে দুইদিন ধইরা।", "english_gloss": "My stomach has been off for two days.", "sensitive": false}, {"script_id": "R047", "symptom_ids": ["S024"], "bengali_text": "আমার গায়ে র‍্যাশ উঠেছে।", "english_gloss": "I have a rash on my body.", "sensitive": false}, {"script_id": "R048", "symptom_ids": ["S024"], "bengali_text": "শরীরে লালচে লালচে দাগ উঠছে, চুলকায়ও।", "english_gloss": "Reddish spots have come up on my body, and they itch too.", "sensitive": false}, {"script_id": "R049", "symptom_ids": ["S025"], "bengali_text": "আমার সারা গায়ে চুলকায়।", "english_gloss": "My whole body itches.", "sensitive": false}, {"script_id": "R050", "symptom_ids": ["S025"], "bengali_text": "সারাক্ষণ গা চুলকাইতে থাকে, রাতে বেশি।", "english_gloss": "My body keeps itching all the time, more at night.", "sensitive": false}, {"script_id": "R051", "symptom_ids": ["S026"], "bengali_text": "আমার শরীরে ঘা হয়েছে, শুকাচ্ছে না।", "english_gloss": "I have a wound on my body that isn't healing.", "sensitive": false}, {"script_id": "R052", "symptom_ids": ["S026"], "bengali_text": "শরীরে একটা জায়গায় ঘা হইয়া গেছে, অনেকদিন ধইরা সারতেছে না।", "english_gloss": "A wound has formed on my body, it hasn't healed for a long time.", "sensitive": false}, {"script_id": "R053", "symptom_ids": ["S027"], "bengali_text": "আমার পা ফুলে গেছে।", "english_gloss": "My legs are swollen.", "sensitive": false}, {"script_id": "R054", "symptom_ids": ["S027"], "bengali_text": "পা দুইটা ফুইলা ঢোল হইয়া গেছে।", "english_gloss": "Both my legs have swollen up like a drum.", "sensitive": false}, {"script_id": "R055", "symptom_ids": ["S028"], "bengali_text": "আমার রাতে ঘুম হয় না।", "english_gloss": "I can't sleep at night.", "sensitive": false}, {"script_id": "R056", "symptom_ids": ["S028"], "bengali_text": "সারারাত এপাশ ওপাশ করি, ঘুম আসে না।", "english_gloss": "I toss and turn all night, sleep doesn't come.", "sensitive": false}, {"script_id": "R057", "symptom_ids": ["S029"], "bengali_text": "আমার খুব দুশ্চিন্তা হয়, মনটা অস্থির লাগে।", "english_gloss": "I feel very anxious, my mind feels restless.", "sensitive": false}, {"script_id": "R058", "symptom_ids": ["S029"], "bengali_text": "কেমন জানি ভিতরে ভিতরে অস্থির লাগে, বুকটা ধড়ফড় করে।", "english_gloss": "I feel restless deep inside somehow, my chest pounds.", "sensitive": false}, {"script_id": "R059", "symptom_ids": ["S030"], "bengali_text": "আমার মন খুব খারাপ থাকে, ভালো লাগে না কিছু।", "english_gloss": "My mood is very low, nothing feels good.", "sensitive": false}, {"script_id": "R060", "symptom_ids": ["S030"], "bengali_text": "কেমন জানি কিছুই ভালো লাগে না আজকাল, একা একা লাগে।", "english_gloss": "I don't know, nothing feels good these days, I feel alone.", "sensitive": false}, {"script_id": "R061", "symptom_ids": ["S031"], "bengali_text": "আমার হাত পা ঝিনঝিন করে আর অবশ লাগে।", "english_gloss": "My hands and feet feel numb and tingly.", "sensitive": false}, {"script_id": "R062", "symptom_ids": ["S031"], "bengali_text": "হাতটা মাঝে মাঝে ঝিমঝিম করে, কোনো সেন্স পাই না।", "english_gloss": "My hand sometimes tingles, I can't feel anything.", "sensitive": false}, {"script_id": "R063", "symptom_ids": ["S032"], "bengali_text": "আমার শরীর থেকে অস্বাভাবিক সাদা স্রাব যাচ্ছে, দুর্গন্ধও আছে।", "english_gloss": "I have unusual white discharge from my body, and there's a bad smell too.", "sensitive": true}, {"script_id": "R064", "symptom_ids": ["S032"], "bengali_text": "নিচের দিকে কেমন যেন সমস্যা হইতেছে কয়দিন ধইরা, ভালো লাগতেছে না।", "english_gloss": "There's some kind of problem down below for a few days, it doesn't feel right.", "sensitive": true}, {"script_id": "R065", "symptom_ids": ["S033"], "bengali_text": "প্রস্রাব করার সময় খুব জ্বালাপোড়া করে।", "english_gloss": "It burns a lot when I urinate.", "sensitive": true}, {"script_id": "R066", "symptom_ids": ["S033"], "bengali_text": "প্রস্রাবের সময় কেমন জানি কষ্ট হয়, আগের মতো না।", "english_gloss": "Something feels uncomfortable when I urinate, not like before.", "sensitive": true}, {"script_id": "R067", "symptom_ids": ["S034"], "bengali_text": "আমার বারবার প্রস্রাব হচ্ছে।", "english_gloss": "I'm urinating frequently.", "sensitive": false}, {"script_id": "R068", "symptom_ids": ["S034"], "bengali_text": "একটু পর পরই প্রস্রাব পায়, রাতেও কয়েকবার উঠতে হয়।", "english_gloss": "I need to urinate every little while, I get up several times at night too.", "sensitive": false}, {"script_id": "R069", "symptom_ids": ["S035"], "bengali_text": "আমার নিচের দিকে চুলকায়।", "english_gloss": "I have itching down there.", "sensitive": true}, {"script_id": "R070", "symptom_ids": ["S035"], "bengali_text": "ওইখানটায় কেমন একটা অস্বস্তি হয়, চুলকায়ও মাঝে মাঝে।", "english_gloss": "There's a kind of discomfort in that area, it itches sometimes too.", "sensitive": true}, {"script_id": "R071", "symptom_ids": ["S036"], "bengali_text": "আমার শরীরের ওই জায়গায় ঘা বা ফোস্কার মতো হয়েছে।", "english_gloss": "I have something like a sore or blister in that area of my body.", "sensitive": true}, {"script_id": "R072", "symptom_ids": ["S036"], "bengali_text": "নিচের দিকে একটা কিছু উঠছে, ব্যথাও করে মাঝে মাঝে।", "english_gloss": "Something has come up down there, it hurts sometimes too.", "sensitive": true}, {"script_id": "R073", "symptom_ids": ["S037"], "bengali_text": "আমার মাসিক ঠিকমতো হয় না, মাসের এদিক ওদিক হয়ে যায়।", "english_gloss": "My periods don't come regularly, they shift around in the month.", "sensitive": false}, {"script_id": "R074", "symptom_ids": ["S037"], "bengali_text": "মাসিকের কোনো ঠিক নাই, কোনো মাসে হয় কোনো মাসে হয় না।", "english_gloss": "There's no fixed pattern to my period, some months it comes, some it doesn't.", "sensitive": false}, {"script_id": "R075", "symptom_ids": ["S038"], "bengali_text": "আমার কয়েক মাস ধরে মাসিক বন্ধ।", "english_gloss": "My period has stopped for a few months.", "sensitive": false}, {"script_id": "R076", "symptom_ids": ["S038"], "bengali_text": "অনেকদিন ধরে ওইটা হইতেছে না, ঠিক বুঝতেছি না কী হইছে।", "english_gloss": "It hasn't come for a long time, I'm not sure what's happening.", "sensitive": true}, {"script_id": "R077", "symptom_ids": ["S039"], "bengali_text": "মাসিকের বাইরেও আমার রক্তপাত হয়।", "english_gloss": "I bleed even outside of my period.", "sensitive": false}, {"script_id": "R078", "symptom_ids": ["S039"], "bengali_text": "হঠাৎ হঠাৎ রক্ত দেখি, মাসিকের সময় ছাড়াও।", "english_gloss": "I suddenly see blood sometimes, even outside my period.", "sensitive": true}, {"script_id": "R079", "symptom_ids": ["S040"], "bengali_text": "সহবাসের সময় আমার ব্যথা হয়।", "english_gloss": "I feel pain during intercourse.", "sensitive": true}, {"script_id": "R080", "symptom_ids": ["S040"], "bengali_text": "ওই সময়টায় খুব কষ্ট হয় আজকাল, আগে এমন ছিল না।", "english_gloss": "It's very painful at that time these days, it wasn't like this before.", "sensitive": true}, {"script_id": "R081", "symptom_ids": ["S041"], "bengali_text": "আমার গায়ে আঘাতের দাগ আছে, কালশিটে পড়ে গেছে।", "english_gloss": "I have injury marks on my body, they've bruised.", "sensitive": false}, {"script_id": "R082", "symptom_ids": ["S041"], "bengali_text": "শরীরে অনেক জায়গায় কালশিটা পড়া, ব্যথাও করে।", "english_gloss": "There are bruises in many places on my body, they hurt too.", "sensitive": false}, {"script_id": "R083", "symptom_ids": ["S042"], "bengali_text": "আমি ঠিকমতো হাঁটতে পারছি না।", "english_gloss": "I can't walk properly.", "sensitive": false}, {"script_id": "R084", "symptom_ids": ["S042"], "bengali_text": "হাঁটতে গেলে খুঁড়াইয়া হাঁটতে হয়, সোজা হাঁটতে পারি না।", "english_gloss": "When I try to walk I limp, I can't walk straight.", "sensitive": false}, {"script_id": "R085", "symptom_ids": ["S043"], "bengali_text": "আমি মাথা ঘুরে পড়ে গিয়েছিলাম।", "english_gloss": "I fainted from dizziness and fell.", "sensitive": false}, {"script_id": "R086", "symptom_ids": ["S043"], "bengali_text": "হঠাৎ চোখে অন্ধকার দেইখা পইড়া গেছিলাম।", "english_gloss": "I suddenly saw darkness in my eyes and fell.", "sensitive": false}, {"script_id": "R087", "symptom_ids": ["S044"], "bengali_text": "আমার কিডনি আর কাজ করছে না বলে মনে হয়।", "english_gloss": "I feel like my kidneys aren't working anymore.", "sensitive": false}, {"script_id": "R088", "symptom_ids": ["S044"], "bengali_text": "শরীরটা একদমই চলতেছে না, ভিতরে কোথায় জানি সমস্যা।", "english_gloss": "My body just isn't functioning at all, there's some problem inside somewhere.", "sensitive": false}, {"script_id": "R089", "symptom_ids": ["S007", "S028"], "bengali_text": "আমার মাথা ব্যথা করে আর রাতে ঘুমও হয় না।", "english_gloss": "I have a headache and also can't sleep at night.", "sensitive": false}, {"script_id": "R090", "symptom_ids": ["S001", "S003"], "bengali_text": "গায়ে জ্বর জ্বর ভাব আর কোনো শক্তি পাচ্ছি না।", "english_gloss": "I feel feverish and have no strength.", "sensitive": false}, {"script_id": "R091", "symptom_ids": ["S009", "S013"], "bengali_text": "পিঠে আর হাঁটুতে দুই জায়গাতেই ব্যথা, হাঁটতে কষ্ট হয়।", "english_gloss": "I have pain in both my back and knee, it's hard to walk.", "sensitive": false}, {"script_id": "R092", "symptom_ids": ["S019", "S008"], "bengali_text": "বমি বমি লাগে আর কিছু খাইতেও ইচ্ছা করে না।", "english_gloss": "I feel nauseous and don't feel like eating anything.", "sensitive": false}, {"script_id": "R093", "symptom_ids": ["S032", "S033"], "bengali_text": "নিচের দিকে স্রাব হচ্ছে আর প্রস্রাবের সময় জ্বালাপোড়াও করে।", "english_gloss": "I have discharge down there and it also burns when I urinate.", "sensitive": true}, {"script_id": "R094", "symptom_ids": ["S011", "S039"], "bengali_text": "তলপেটে ব্যথা করে আর মাসিকের বাইরেও মাঝে মাঝে রক্ত দেখি।", "english_gloss": "I have lower abdominal pain and sometimes see blood outside my period too.", "sensitive": true}, {"script_id": "R095", "symptom_ids": ["S006", "S007"], "bengali_text": "মাথা ঘোরে আর সাথে মাথা ব্যথাও করে।", "english_gloss": "I feel dizzy and also have a headache.", "sensitive": false}, {"script_id": "R096", "symptom_ids": ["S015", "S016"], "bengali_text": "অনেকদিন ধরে কাশি আর গলা ব্যথা দুইটাই আছে।", "english_gloss": "I've had both a cough and a sore throat for a long time.", "sensitive": false}, {"script_id": "R097", "symptom_ids": ["S028", "S029", "S030"], "bengali_text": "রাতে ঘুম হয় না, মনটাও খুব অস্থির লাগে, ভালো লাগে না কিছু।", "english_gloss": "I can't sleep at night, my mind feels restless, nothing feels good.", "sensitive": false}, {"script_id": "R098", "symptom_ids": ["S021", "S010"], "bengali_text": "পেটে ব্যথা করে আর পাতলা পায়খানাও হচ্ছে।", "english_gloss": "I have stomach pain and diarrhea too.", "sensitive": false}, {"script_id": "R099", "symptom_ids": ["S035", "S024"], "bengali_text": "নিচের দিকে চুলকায় আর শরীরেও লালচে দাগ উঠছে।", "english_gloss": "I have itching down there and reddish spots on my body too.", "sensitive": true}, {"script_id": "R100", "symptom_ids": ["S041", "S042"], "bengali_text": "গায়ে আঘাতের দাগ আছে আর ঠিকমতো হাঁটতেও পারি না।", "english_gloss": "I have injury marks on my body and can't walk properly.", "sensitive": false}, {"script_id": "R101", "symptom_ids": ["S017", "S014"], "bengali_text": "শ্বাস নিতে কষ্ট হয় আর বুকেও ব্যথা করে।", "english_gloss": "It's hard to breathe and my chest hurts too.", "sensitive": false}, {"script_id": "R102", "symptom_ids": ["S004", "S005"], "bengali_text": "রাতে খুব ঘাম হয় আর শরীরও শুকিয়ে যাচ্ছে দিন দিন।", "english_gloss": "I sweat a lot at night and I'm also losing weight day by day.", "sensitive": false}, {"script_id": "R103", "symptom_ids": ["S038", "S019"], "bengali_text": "কয়েক মাস ধরে মাসিক বন্ধ, আর মাঝে মাঝে বমি বমিও লাগে।", "english_gloss": "My period has stopped for a few months, and I sometimes feel nauseous too.", "sensitive": true}, {"script_id": "R104", "symptom_ids": [], "bengali_text": "আজকে আবহাওয়া টা খুব সুন্দর।", "english_gloss": "The weather is very nice today.", "sensitive": false}, {"script_id": "R105", "symptom_ids": [], "bengali_text": "আমি কালকে বাজারে গিয়েছিলাম জিনিসপত্র কিনতে।", "english_gloss": "I went to the market yesterday to buy things.", "sensitive": false}, {"script_id": "R106", "symptom_ids": [], "bengali_text": "আমার বাসাটা এখান থেকে বেশি দূরে না।", "english_gloss": "My house isn't very far from here.", "sensitive": false}, {"script_id": "R107", "symptom_ids": [], "bengali_text": "আপনাদের এখানে কয়টার সময় খোলে?", "english_gloss": "What time do you open here?", "sensitive": false}, {"script_id": "R108", "symptom_ids": [], "bengali_text": "আমি ঠিক আছি, শুধু একটু কথা বলতে আসছিলাম।", "english_gloss": "I'm fine, I just came to talk a bit.", "sensitive": false}, {"script_id": "R109", "symptom_ids": [], "bengali_text": "আমার বোনের সাথে দেখা করতে যাব আজকে।", "english_gloss": "I'm going to meet my sister today.", "sensitive": false}, {"script_id": "R110", "symptom_ids": [], "bengali_text": "এই ওষুধের দাম কত?", "english_gloss": "How much does this medicine cost?", "sensitive": false}, {"script_id": "R111", "symptom_ids": [], "bengali_text": "আমি আগে একবার এখানে এসেছিলাম গত বছর।", "english_gloss": "I came here once before, last year.", "sensitive": false}, {"script_id": "R112", "symptom_ids": [], "bengali_text": "ধন্যবাদ, আপনাদের সাহায্যের জন্য।", "english_gloss": "Thank you for your help.", "sensitive": false}, {"script_id": "R113", "symptom_ids": [], "bengali_text": "আমার সাথে আর কেউ আসেনি, একাই এসেছি।", "english_gloss": "No one came with me, I came alone.", "sensitive": false}];
+const ENDPOINT = "";   // empty string = test mode (nothing is uploaded)
+const MAX_SECONDS = 60;
+const KEY = 'volrec_';
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(KEY + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} },
+  clear() { try { Object.keys(localStorage).filter(k => k.startsWith(KEY)).forEach(k => localStorage.removeItem(k)); } catch (e) {} },
+};
+
+// Speaker ID = ASCII slug of the entered name + a short random suffix, so two volunteers
+// with the same name never share a folder. The full name is sent alongside every upload.
+function makeSpeakerId(name) {
+  const slug = name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'speaker';
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const rnd = crypto.getRandomValues(new Uint8Array(4));
+  return slug + '_' + Array.from(rnd, b => alphabet[b % alphabet.length]).join('');
+}
+
+let speakerName = store.get('name', '');
+let speakerId = store.get('speaker', '');
+let accessCode = store.get('code', '');
+let takes = store.get('takes', {});        // script_id -> number of takes submitted
+let skipped = store.get('skipped', {});    // script_id -> true
+let index = store.get('index', 0);
+if (!(index >= 0 && index < SCRIPT_DATA.length)) index = 0;
+
+const $ = id => document.getElementById(id);
+
+// The same recorder drives the practice take and the real takes; `ui` points at whichever
+// set of controls is on screen.
+const MAIN_UI = { btn: 'recordBtn', timer: 'timer', player: 'player', review: 'reviewArea', status: 'status' };
+const PRACTICE_UI = { btn: 'practiceRecordBtn', timer: 'practiceTimer', player: 'practicePlayer', review: 'practiceReview', status: 'practiceStatus' };
+let ui = MAIN_UI;
+
+let micStream = null, recorder = null, chunks = [], recStart = 0, timerHandle = null;
+let pending = null;   // { blob, url, mime, duration }
+let uploading = false;
+
+function show(screen) {
+  for (const s of ['introScreen', 'tutorialScreen', 'recordScreen', 'doneScreen']) $(s).classList.toggle('hidden', s !== screen);
+  $('myDataPanel').classList.toggle('hidden', screen === 'introScreen');
+  ui = screen === 'tutorialScreen' ? PRACTICE_UI : MAIN_UI;
+  window.scrollTo(0, 0);
+}
+
+async function api(payload) {
+  if (!ENDPOINT) {
+    await new Promise(r => setTimeout(r, 500));
+    return { ok: true, dry_run: true };
+  }
+  const res = await fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ code: accessCode, speaker_id: speakerId, speaker_name: speakerName, ...payload }),
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+// ---- intro / consent ----
+function updateStartEnabled() {
+  $('startBtn').disabled = !($('consentBox').checked && $('nameInput').value.trim() && $('codeInput').value.trim());
+}
+async function onStart() {
+  $('introError').textContent = '';
+  $('startBtn').disabled = true;
+  accessCode = $('codeInput').value.trim();
+  const name = $('nameInput').value.trim().replace(/\s+/g, ' ');
+  try {
+    const r = await api({ action: 'check' });
+    if (!r.ok) throw new Error(r.error === 'bad_code' ? 'That access code is not correct.' : r.error);
+  } catch (err) {
+    $('introError').textContent = err.message.startsWith('That') ? err.message : 'Could not reach the server. Check your internet connection and try again.';
+    updateStartEnabled();
+    return;
+  }
+  if (name !== speakerName || !speakerId) { speakerName = name; speakerId = makeSpeakerId(name); }
+  store.set('name', speakerName); store.set('speaker', speakerId);
+  store.set('code', accessCode);
+  store.set('consent', new Date().toISOString());
+  $('speakerLabel').textContent = speakerId;
+  showTutorial();
+}
+
+function showTutorial() {
+  if (recorder && recorder.state === 'recording') return;
+  if (pending && !confirm('Your recording for this sentence has not been submitted. Discard it?')) return;
+  discardPending();
+  show('tutorialScreen');
+}
+
+function finishTutorial() {
+  if (recorder && recorder.state === 'recording') recorder.stop();
+  discardPending();
+  store.set('tutorial_done', true);
+  enterRecording();
+}
+
+// ---- recording ----
+function pickMime() {
+  for (const mt of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']) {
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(mt)) return mt;
+  }
+  return '';
+}
+
+async function toggleRecord() {
+  if (recorder && recorder.state === 'recording') { recorder.stop(); return; }
+  if (uploading) return;
+  discardPending();
+  try {
+    if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    setStatus('Microphone access was blocked. Allow microphone access for this site in your browser settings, then reload.', 'err');
+    return;
+  }
+  const mt = pickMime();
+  chunks = [];
+  recorder = mt ? new MediaRecorder(micStream, { mimeType: mt }) : new MediaRecorder(micStream);
+  const recUi = ui;
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => onStopped(recUi);
+  recorder.start();
+  recStart = Date.now();
+  setStatus('');
+  $(recUi.btn).textContent = '■ Stop';
+  $(recUi.btn).classList.replace('primary', 'danger');
+  timerHandle = setInterval(() => {
+    const s = Math.floor((Date.now() - recStart) / 1000);
+    $(recUi.timer).textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    if (s >= MAX_SECONDS && recorder.state === 'recording') recorder.stop();
+  }, 250);
+}
+
+function onStopped(recUi) {
+  clearInterval(timerHandle);
+  $(recUi.btn).textContent = '● Record';
+  $(recUi.btn).classList.replace('danger', 'primary');
+  if (recUi !== ui) return;   // screen changed while recording
+  const mime = recorder.mimeType || chunks[0]?.type || 'audio/webm';
+  const blob = new Blob(chunks, { type: mime });
+  const duration = (Date.now() - recStart) / 1000;
+  if (duration < 0.7 || blob.size === 0) { setStatus('That was too short — try again.', 'err'); return; }
+  pending = { blob, url: URL.createObjectURL(blob), mime, duration };
+  $(ui.player).src = pending.url;
+  $(ui.review).classList.remove('hidden');
+}
+
+function discardPending() {
+  if (pending) URL.revokeObjectURL(pending.url);
+  pending = null;
+  for (const u of [MAIN_UI, PRACTICE_UI]) {
+    $(u.player).removeAttribute('src');
+    $(u.review).classList.add('hidden');
+    $(u.timer).textContent = '00:00';
+  }
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1]);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
+async function submit() {
+  if (!pending || uploading) return;
+  const item = SCRIPT_DATA[index];
+  const take = (takes[item.script_id] || 0) + 1;
+  uploading = true;
+  setBusy(true);
+  setStatus('Uploading…');
+  try {
+    const r = await api({
+      action: 'upload',
+      script_id: item.script_id,
+      symptom_ids: item.symptom_ids.join(';'),
+      take,
+      mime_type: pending.mime,
+      duration_sec: pending.duration.toFixed(2),
+      client_timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      audio_b64: await blobToBase64(pending.blob),
+    });
+    if (!r.ok) throw new Error(r.error || 'upload failed');
+    takes[item.script_id] = take;
+    delete skipped[item.script_id];
+    store.set('takes', takes); store.set('skipped', skipped);
+    discardPending();
+    uploading = false;
+    setBusy(false);
+    advance();
+    setStatus(r.dry_run ? 'Saved (test mode — nothing uploaded).' : 'Saved ✓', 'ok');
+  } catch (err) {
+    uploading = false;
+    setBusy(false);
+    const msg = err.message === 'bad_code' ? 'The access code is no longer valid. Please contact the research team.'
+      : 'Upload failed — check your connection and press Submit again. (' + err.message + ')';
+    setStatus(msg, 'err');
+  }
+}
+
+function setBusy(b) {
+  for (const id of ['submitBtn', 'redoBtn', 'recordBtn', 'prevBtn', 'skipBtn']) $(id).disabled = b;
+}
+function setStatus(text, cls) {
+  $(ui.status).textContent = text;
+  $(ui.status).className = 'status' + (cls ? ' ' + cls : '');
+}
+
+// ---- navigation ----
+function nextUnfinished(from) {
+  for (let i = from; i < SCRIPT_DATA.length; i++) {
+    const id = SCRIPT_DATA[i].script_id;
+    if (!takes[id] && !skipped[id]) return i;
+  }
+  return -1;
+}
+
+function advance() {
+  const n = nextUnfinished(index + 1);
+  if (n === -1 && nextUnfinished(0) === -1) { finish(); return; }
+  goTo(n === -1 ? nextUnfinished(0) : n);
+}
+
+function goTo(i) {
+  if (recorder && recorder.state === 'recording') return;
+  if (pending && !confirm('Your recording for this sentence has not been submitted. Discard it?')) return;
+  discardPending();
+  setStatus('');
+  index = Math.max(0, Math.min(SCRIPT_DATA.length - 1, i));
+  store.set('index', index);
+  render();
+}
+
+function skip() {
+  if (recorder && recorder.state === 'recording') return;
+  if (pending && !confirm('Your recording for this sentence has not been submitted. Discard it?')) return;
+  discardPending();
+  const id = SCRIPT_DATA[index].script_id;
+  if (!takes[id]) { skipped[id] = true; store.set('skipped', skipped); }
+  advance();
+}
+
+function render() {
+  const item = SCRIPT_DATA[index];
+  const done = Object.keys(takes).length;
+  $('lineLabel').textContent = `Sentence ${index + 1} of ${SCRIPT_DATA.length}`;
+  $('countLabel').textContent = `${done} submitted`;
+  $('progressFill').style.width = (100 * done / SCRIPT_DATA.length) + '%';
+  $('bnText').textContent = item.bengali_text;
+  $('gloss').textContent = item.english_gloss;
+  $('sensitiveNote').classList.toggle('hidden', !item.sensitive);
+  $('badges').innerHTML = '';
+  const addBadge = (text, cls) => { const b = document.createElement('span'); b.className = 'badge ' + (cls || ''); b.textContent = text; $('badges').appendChild(b); };
+  addBadge(item.script_id);
+  if (item.sensitive) addBadge('sensitive topic', 'sensitive');
+  if (takes[item.script_id]) addBadge('✓ submitted' + (takes[item.script_id] > 1 ? ` (${takes[item.script_id]}×)` : ''), 'done');
+  else if (skipped[item.script_id]) addBadge('skipped');
+  $('prevBtn').disabled = index === 0;
+}
+
+function enterRecording() {
+  show('recordScreen');
+  if (nextUnfinished(0) === -1) { finish(); return; }
+  const id = SCRIPT_DATA[index].script_id;
+  if (takes[id] || skipped[id]) index = nextUnfinished(index) === -1 ? nextUnfinished(0) : nextUnfinished(index);
+  render();
+}
+
+function finish() {
+  const done = Object.keys(takes).length;
+  const nSkipped = Object.keys(skipped).length;
+  $('doneSummary').textContent = `You submitted ${done} recording${done === 1 ? '' : 's'}` + (nSkipped ? ` and skipped ${nSkipped}.` : '.');
+  $('reviewSkippedBtn').classList.toggle('hidden', nSkipped === 0);
+  show('doneScreen');
+}
+
+async function withdraw() {
+  if (!confirm('This deletes every recording you have submitted from this device and resets the page. Continue?')) return;
+  $('withdrawError').textContent = '';
+  $('withdrawBtn').disabled = true;
+  try {
+    const r = await api({ action: 'withdraw' });
+    if (!r.ok) throw new Error(r.error);
+  } catch (err) {
+    $('withdrawError').textContent = `Could not withdraw automatically (${err.message}). Please contact the research team and quote your ID: ${speakerId}`;
+    $('withdrawBtn').disabled = false;
+    return;
+  }
+  store.clear();
+  alert('Your recordings have been deleted. Thank you.');
+  location.reload();
+}
+
+window.addEventListener('beforeunload', e => {
+  if ((pending && ui === MAIN_UI) || uploading) { e.preventDefault(); e.returnValue = ''; }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  $('speakerLabel').textContent = speakerId;
+  for (const id of ['consentBox', 'nameInput', 'codeInput']) $(id).addEventListener('input', updateStartEnabled);
+  $('nameInput').value = speakerName;
+  $('codeInput').value = accessCode;
+  $('startBtn').addEventListener('click', onStart);
+  $('practiceRecordBtn').addEventListener('click', toggleRecord);
+  $('beginBtn').addEventListener('click', finishTutorial);
+  $('showTutorialBtn').addEventListener('click', showTutorial);
+  $('recordBtn').addEventListener('click', toggleRecord);
+  $('redoBtn').addEventListener('click', toggleRecord);
+  $('submitBtn').addEventListener('click', submit);
+  $('prevBtn').addEventListener('click', () => goTo(index - 1));
+  $('skipBtn').addEventListener('click', skip);
+  $('withdrawBtn').addEventListener('click', withdraw);
+  $('reviewSkippedBtn').addEventListener('click', () => {
+    skipped = {}; store.set('skipped', skipped);
+    index = 0; enterRecording();
+  });
+
+  if (!ENDPOINT) {
+    const banner = document.createElement('div');
+    banner.className = 'sensitive-note';
+    banner.textContent = 'TEST MODE: no upload endpoint configured — recordings are not sent anywhere.';
+    document.querySelector('.wrap').prepend(banner);
+  }
+
+  if (!(store.get('consent', null) && accessCode && speakerId)) show('introScreen');
+  else if (!store.get('tutorial_done', false)) show('tutorialScreen');
+  else enterRecording();
+});
+</script>
+</body>
+</html>
